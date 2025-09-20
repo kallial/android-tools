@@ -35,8 +35,8 @@ echo "$NEW_DEVICES"
 declare -A NEW_IDS
 while read -r line; do
   id=$(echo "$line" | awk '{print $6}')
-  vendor=$(echo "$key" | cut -d: -f1)
-  product=$(echo "$key" | cut -d: -f2)
+  vendor=${id%%:*}
+  product=${id##*:}
   NEW_IDS["$vendor:$product"]=1
 done <<<"$NEW_DEVICES"
 
@@ -47,8 +47,8 @@ fi
 
 # Check which IDs are already present in the rules file
 for key in "${!NEW_IDS[@]}"; do
-  vendor=$(echo "$key" | cut -d: -f1)
-  product=$(echo "$key" | cut -d: -f2)
+  vendor=${id%%:*}
+  product=${id##*:}
   # Check if this vendor/product is already in the rules file
   if grep -q "ATTR{idVendor}==\"$vendor\"" "$UDEV_RULES_FILE" && grep -q "ATTR{idProduct}==\"$product\"" "$UDEV_RULES_FILE"; then
     echo "Device $vendor:$product already present in rules file, skipping."
@@ -68,4 +68,3 @@ echo "Udev rules updated."
 
 # Clean up
 rm -f "$TEMP_BEFORE" "$TEMP_AFTER"
-
